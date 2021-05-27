@@ -289,6 +289,62 @@ class cross_entropy_softmax_logits:
         return softmax(X) - Y
 
 
+class SGD:
+    # Stochastic gradient descent optimiser
+    def __init__(self, name, learning_rate, model):
+        self.name = name
+        self.lr = learning_rate
+        self.model = model
+
+    def learning(self, batch_xs, batch_ys):
+        self.model.backprop(batch_xs, batch_ys)
+        for module in self.model.graph:
+            if module.name[:-1] in ['linear', 'conv']:
+                module.W -= self.lr * module.grads[0]
+                module.b -= self.lr * module.grads[1]
+        self.model.graph.reverse()
+
+class Model:
+    # This is the model that combines all compoents
+    # also do forward and backward pass
+    def __init__(self, graph):
+        self.graph = graph
+
+    def forward_pass(self, X):
+        counter = 0
+        forward_seq = [X]
+        for module in self.graph:
+            if counter == 0:
+                forward = module(X)
+                forward_seq.append(forward)
+            else:
+                if module.name[:-1] != 'loss':
+                    forward = module(forward)
+                    forward_seq.append(forward)
+            counter += 1
+        return forward_seq, forward
+
+    def backprop(self, X, Y):
+        forward_seq, _ = self.forward_pass(X)
+        forward_seq.reverse()
+        backward_pass = 0
+        counter = 0
+        self.graph.reverse()
+        for module in self.graph:
+            if module.name[:-1] == 'loss':
+                backward_pass = module.backward_pass(forward_seq[counter], Y)
+            elif module.name[:-1] in ['relu', 'maxpool', 'flatten']:
+                backward_pass = module.backward_pass(backward_pass)
+            elif module.name[:-1] == 'linear':
+                module.param_gradients(backward_pawarss, forward_seq[counter])
+                backward_pass = module.backward_pass(backward_pass)
+            elif module.name[:-1] == 'conv':
+                module.param_gradients(backward_pass, forward_seq[counter])
+                backward_pass = module.backward_pass(backward_pass, forward_seq[counter])
+
+            counter += 1
+        del forward_seq
+
 
 
 
