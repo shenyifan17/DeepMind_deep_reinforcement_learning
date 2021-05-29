@@ -1,11 +1,10 @@
-# yifanflow
+# Deep and Reinforcement Learning
+
 Archived Google DeepMind deep learning and reinforcement learning course. 
 
+- Numpy version neural networks (vanilla and CNN). Alternative to tensorflow (yifanflow!). Might add RNN if time 
+- RNN classification and inpainting missing pixel 
+- Reinforcement Learning 
 
-yifanflow_framework.py contains numpy version of vanilla and convolutional neural networks 
-
-This project is called yifanflow as it is a alternative to tensorflow! (Only vanilla neural networks and CNN though :) ) 
-
-Perhaps will add numpy version of RNN in the future...
 
 
